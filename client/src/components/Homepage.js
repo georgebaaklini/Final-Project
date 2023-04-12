@@ -3,6 +3,7 @@ import styled from "styled-components";
 import ReactPaginate from "react-paginate";
 import PositionCounter from "./PositionCounter";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useNavigate } from "react-router-dom";
 
 const Homepage = () => {
   const [leagues, setLeagues] = useState([]);
@@ -20,6 +21,7 @@ const Homepage = () => {
     M: 0,
     F: 0,
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("/api/countries?ids=3,4,5,6,7,28,81,96,118,124")
@@ -69,7 +71,7 @@ const Homepage = () => {
     F: 3,
   };
   const togglePlayerSelection = (playerName, position, playerImage) => {
-    const player = { name: playerName, image: playerImage };
+    const player = { name: playerName, image: playerImage, position: position };
 
     if (selectedPlayers.some((p) => p.name === playerName)) {
       setSelectedPlayers(selectedPlayers.filter((p) => p.name !== playerName));
@@ -107,6 +109,7 @@ const Homepage = () => {
       });
       if (response.ok) {
         alert("Team submitted successfully");
+        navigate("/teams");
       } else {
         alert("Error submitting team");
       }

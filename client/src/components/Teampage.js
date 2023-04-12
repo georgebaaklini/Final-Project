@@ -11,7 +11,6 @@ const Teampage = () => {
     fetch("/api/teams")
       .then((res) => res.json())
       .then((data) => {
-        console.log(data.data);
         setTeams(data.data);
       })
       .catch((error) => console.error(error));
@@ -39,13 +38,17 @@ const Teampage = () => {
     console.log("team:", team);
     console.log("playerToReplace:", playerToReplace);
     console.log("selectedPlayer:", selectedPlayer);
-    if (
-      !selectedPlayer ||
-      selectedPlayer.position !== playerToReplace.position
-    ) {
+    if (!selectedPlayer) {
+      alert("Please select a player to replace");
+      return;
+    }
+
+    if (selectedPlayer.position !== playerToReplace.position) {
       alert("Please select a player with the same position to replace");
       return;
     }
+
+    console.log("position:", playerToReplace.position);
 
     try {
       const response = await fetch(`/api/teams/${team._id}`, {
@@ -96,9 +99,12 @@ const Teampage = () => {
                     height={50}
                   />
                   <p>{player.name}</p>
-                  <Button onClick={() => setSelectedPlayer(player)}>
-                    Select Player
-                  </Button>
+                  <p>{player.position}</p>
+                  {user && team.user !== user.email && (
+                    <Button onClick={() => setSelectedPlayer(player)}>
+                      Select Player
+                    </Button>
+                  )}
                 </List>
                 {user && team.user === user.email && (
                   <>

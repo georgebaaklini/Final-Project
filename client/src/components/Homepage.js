@@ -23,6 +23,7 @@ const Homepage = () => {
   });
   const navigate = useNavigate();
 
+  //Fetches countries based on id
   useEffect(() => {
     fetch("/api/countries?ids=3,4,5,6,7,28,81,96,118,124")
       .then((response) => response.json())
@@ -32,6 +33,7 @@ const Homepage = () => {
       .catch((error) => console.error(error));
   }, []);
 
+  //Fetches the leagues based on the country selected
   const handleCountryClick = (countryId) => {
     setSelectedCountry(countryId);
     fetch(`/api/leagues-by-country?countryId=${countryId}`)
@@ -42,19 +44,19 @@ const Homepage = () => {
       .catch((error) => console.error(error));
   };
 
+  //Fetches the players based on the league selected
   const handleLeagueClick = (leagueName) => {
     const parsedLeagueName = leagueName.toLowerCase().replace(/ /g, "");
     setSelectedLeague(parsedLeagueName);
-    console.log(`Fetching squads for league: ${parsedLeagueName}`);
     fetch(`/api/squads/${parsedLeagueName}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setSquads(data.data);
       })
       .catch((error) => console.error(error));
   };
 
+  // Get all players based on search criteria
   const getAllPlayers = () => {
     return squads
       .flatMap((squad) => squad.squad)
@@ -64,12 +66,16 @@ const Homepage = () => {
           .includes(searchName.toLowerCase())
       );
   };
+
+  // Position rules for team selection
   const positionRules = {
     G: 1,
     D: 4,
     M: 3,
     F: 3,
   };
+
+  // Toggle player selection
   const togglePlayerSelection = (playerName, position, playerImage) => {
     const player = { name: playerName, image: playerImage, position: position };
 
@@ -93,6 +99,7 @@ const Homepage = () => {
 
   const { user } = useAuth0();
 
+  // Submit team function
   const submitTeam = async () => {
     const team = {
       user: user.email,

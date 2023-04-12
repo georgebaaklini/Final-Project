@@ -25,18 +25,25 @@ express()
   // Any requests for static files will go into the public folder
   .use(express.static("public"))
 
+  // Get countries
   .get("/api/countries", getCountries)
 
+  // Get leagues by country
   .get("/api/leagues-by-country", getLeaguesbyCountry)
 
+  // Get squads by league
   .get("/api/squads/:league", getSquadByLeague)
 
+  // Post the submitted team
   .post("/api/save-team", saveTeam)
 
+  // Get all the submitted teams
   .get("/api/teams", getTeams)
 
+  // Delete a submitted team
   .delete("/api/teams/:id", deleteTeam)
 
+  // Replace a player
   .patch("/api/teams/:id", replacePlayerInTeam)
 
   // this is our catch all endpoint.

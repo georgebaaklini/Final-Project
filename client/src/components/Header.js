@@ -5,6 +5,7 @@ import LogoutButton from "./Logout";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
 
+// Header component
 const Header = () => {
   const { user, isAuthenticated } = useAuth0();
 

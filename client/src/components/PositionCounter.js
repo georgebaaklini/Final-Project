@@ -1,5 +1,6 @@
 import styled from "styled-components";
 
+// Position counter component
 const PositionCounter = ({ positionCounts }) => {
   return (
     <Wrapper>

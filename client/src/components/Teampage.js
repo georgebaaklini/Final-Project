@@ -7,6 +7,7 @@ const Teampage = () => {
   const { user } = useAuth0();
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
+  // Fetches all the teams submitted
   useEffect(() => {
     fetch("/api/teams")
       .then((res) => res.json())
@@ -16,6 +17,7 @@ const Teampage = () => {
       .catch((error) => console.error(error));
   }, []);
 
+  // Delete team function
   const deleteTeam = async (teamId) => {
     try {
       const response = await fetch(`/api/teams/${teamId}`, {
@@ -34,10 +36,8 @@ const Teampage = () => {
     }
   };
 
+  // Replace player function
   const replacePlayer = async (team, playerToReplace) => {
-    console.log("team:", team);
-    console.log("playerToReplace:", playerToReplace);
-    console.log("selectedPlayer:", selectedPlayer);
     if (!selectedPlayer) {
       alert("Please select a player to replace");
       return;
@@ -47,8 +47,6 @@ const Teampage = () => {
       alert("Please select a player with the same position to replace");
       return;
     }
-
-    console.log("position:", playerToReplace.position);
 
     try {
       const response = await fetch(`/api/teams/${team._id}`, {
@@ -64,7 +62,6 @@ const Teampage = () => {
 
       if (response.ok) {
         const updatedTeam = await response.json();
-        console.log("updatedTeam:", updatedTeam);
         setTeams((prevTeams) =>
           prevTeams.map((t) => (t._id === team._id ? updatedTeam : t))
         );

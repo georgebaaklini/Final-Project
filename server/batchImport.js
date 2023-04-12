@@ -91,6 +91,7 @@ const mlsSquadIds = [
 
 const superLigSquadIds = [1014];
 
+// Fetches squads from API
 const getSquad = async (squadId) => {
   const response = await fetch(
     `https://api.soccersapi.com/v2.2/teams/?user=george2001&token=${API_TOKEN}&t=squad&id=${squadId}`
@@ -99,6 +100,7 @@ const getSquad = async (squadId) => {
   return data.data.squad;
 };
 
+// Adds squads to specified collection in mongoDB
 const addSquads = async (collectionName, squadIds) => {
   const client = new MongoClient(MONGO_URI, options);
   try {

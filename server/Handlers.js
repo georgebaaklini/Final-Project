@@ -13,6 +13,7 @@ const options = {
   useUnifiedTopology: true,
 };
 
+// Function for getting countries from API
 const getCountries = async (req, res) => {
   try {
     const countryIds = req.query.ids;
@@ -43,6 +44,7 @@ const getCountries = async (req, res) => {
   }
 };
 
+// Function for getting leagues for specific country from API
 const getLeaguesbyCountry = async (req, res) => {
   try {
     const { countryId } = req.query;
@@ -61,6 +63,7 @@ const getLeaguesbyCountry = async (req, res) => {
   }
 };
 
+// Function for getting squads for specific league from my mongoDB
 const getSquadByLeague = async (req, res) => {
   const league = req.params.league;
   const client = new MongoClient(MONGO_URI, options);
@@ -81,6 +84,7 @@ const getSquadByLeague = async (req, res) => {
   }
 };
 
+// Function to save the submitted team in my teams collection in mongoDB
 const saveTeam = async (req, res) => {
   const { user, players } = req.body;
   const client = new MongoClient(MONGO_URI, options);
@@ -103,6 +107,7 @@ const saveTeam = async (req, res) => {
   }
 };
 
+//Function that gets all the submitted teams from my teams collection in mongoDB
 const getTeams = async (req, res) => {
   const client = new MongoClient(MONGO_URI, options);
 
@@ -121,6 +126,7 @@ const getTeams = async (req, res) => {
   }
 };
 
+// Function that deletes a specific team from my teams collection in mongoDB
 const deleteTeam = async (req, res) => {
   const { id } = req.params;
   const client = new MongoClient(MONGO_URI, options);
@@ -145,6 +151,7 @@ const deleteTeam = async (req, res) => {
   }
 };
 
+// Function that replaces a player from the users team with another player from another users team
 const replacePlayerInTeam = async (req, res) => {
   const { id } = req.params;
   const { playerIdToReplace, newPlayer } = req.body;

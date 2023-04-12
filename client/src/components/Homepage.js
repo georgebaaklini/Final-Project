@@ -71,7 +71,7 @@ const Homepage = () => {
   const togglePlayerSelection = (playerName, position, playerImage) => {
     const player = { name: playerName, image: playerImage };
 
-    if (selectedPlayers.some((p) => p.name === !playerName)) {
+    if (selectedPlayers.some((p) => p.name === playerName)) {
       setSelectedPlayers(selectedPlayers.filter((p) => p.name !== playerName));
       setPositionCounts({
         ...positionCounts,

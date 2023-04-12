@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import styled from "styled-components";
 
 const Teampage = () => {
   const [teams, setTeams] = useState([]);
   const { user } = useAuth0();
-  const [playerNames, setPlayerNames] = useState([]);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   useEffect(() => {
     fetch("/api/teams")
@@ -34,43 +35,37 @@ const Teampage = () => {
     }
   };
 
-  const replacePlayer = async (teamId, playerName) => {
+  const replacePlayer = async (team, playerToReplace) => {
+    console.log("team:", team);
+    console.log("playerToReplace:", playerToReplace);
+    console.log("selectedPlayer:", selectedPlayer);
+    if (
+      !selectedPlayer ||
+      selectedPlayer.position !== playerToReplace.position
+    ) {
+      alert("Please select a player with the same position to replace");
+      return;
+    }
+
     try {
-      const playerResponse = await fetch(
-        `/api/players?name=${encodeURIComponent(playerName)}`
-      );
-      const playerData = await playerResponse.json();
-      const newPlayer = playerData.data;
-
-      if (!newPlayer) {
-        console.error("Player not found");
-        return;
-      }
-
-      const response = await fetch(`/api/players/${teamId}`, {
+      const response = await fetch(`/api/teams/${team._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ newPlayer }),
+        body: JSON.stringify({
+          playerIdToReplace: playerToReplace.name,
+          newPlayer: selectedPlayer,
+        }),
       });
 
       if (response.ok) {
-        const updatedTeams = teams.map((team) => {
-          if (team._id === teamId) {
-            return {
-              ...team,
-              players: team.players.map((player) => {
-                if (player.id === newPlayer.id) {
-                  return newPlayer;
-                }
-                return player;
-              }),
-            };
-          }
-          return team;
-        });
-        setTeams(updatedTeams);
+        const updatedTeam = await response.json();
+        console.log("updatedTeam:", updatedTeam);
+        setTeams((prevTeams) =>
+          prevTeams.map((t) => (t._id === team._id ? updatedTeam : t))
+        );
+        setSelectedPlayer(null);
       } else {
         console.error("Failed to replace player");
       }
@@ -81,15 +76,14 @@ const Teampage = () => {
 
   return (
     <div>
-      <h2>Teams</h2>
+      <H2>Teams</H2>
       {teams.map((team, index) => (
-        <div key={index}>
-          <h3>{team.user}'s team</h3>
-          <ul>
+        <Wrapper key={index}>
+          <H3>{team.user}'s team</H3>
+          <PlayerList>
             {team.players.map((player, idx) => (
-              <div key={idx}>
-                <li>
-                  {player.name}{" "}
+              <PlayerDiv key={idx}>
+                <List>
                   <img
                     src={player.image}
                     onError={({ currentTarget }) => {
@@ -100,37 +94,101 @@ const Teampage = () => {
                     alt={player.name}
                     width={50}
                     height={50}
-                  ></img>
-                </li>
+                  />
+                  <p>{player.name}</p>
+                  <Button onClick={() => setSelectedPlayer(player)}>
+                    Select Player
+                  </Button>
+                </List>
                 {user && team.user === user.email && (
-                  <div>
-                    <input
-                      type="text"
-                      value={playerNames[idx] || ""}
-                      onChange={(e) => {
-                        const newPlayerNames = [...playerNames];
-                        newPlayerNames[idx] = e.target.value;
-                        setPlayerNames(newPlayerNames);
-                      }}
-                      placeholder="Enter new player name"
-                    />
-                    <button
-                      onClick={() => replacePlayer(team._id, playerNames[idx])}
-                    >
-                      Replace player
-                    </button>
-                  </div>
+                  <>
+                    <Button onClick={() => replacePlayer(team, player)}>
+                      Replace Player
+                    </Button>
+                  </>
                 )}
-              </div>
+              </PlayerDiv>
             ))}
-          </ul>
-          {user && team.user === user.email && (
-            <button onClick={() => deleteTeam(team._id)}>Delete Team</button>
-          )}
-        </div>
+          </PlayerList>
+          <DeleteWrapper>
+            {user && team.user === user.email && (
+              <DeleteButton onClick={() => deleteTeam(team._id)}>
+                Delete Team
+              </DeleteButton>
+            )}
+          </DeleteWrapper>
+        </Wrapper>
       ))}
     </div>
   );
 };
 
 export default Teampage;
+
+const Wrapper = styled.div`
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 5px;
+  margin: 5px;
+  font-family: "Exo 2", sans-serif;
+`;
+
+const H2 = styled.h2`
+  text-align: center;
+  font-family: "Exo 2", sans-serif;
+  font-weight: 500;
+  font-size: 30px;
+  color: rgb(0, 102, 204);
+`;
+
+const H3 = styled.h3`
+  text-align: center;
+  font-family: "Exo 2", sans-serif;
+  font-weight: 500;
+  font-size: 25px;
+  margin-top: 40px;
+  color: rgb(0, 102, 204);
+`;
+
+const PlayerList = styled.ul`
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+`;
+
+const PlayerDiv = styled.div``;
+
+const List = styled.li`
+  margin: 15px;
+`;
+
+const Button = styled.button`
+  background-color: rgb(0, 102, 204);
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  font-family: "Exo 2", sans-serif;
+  font-weight: 700;
+  padding: 5px 15px;
+  cursor: pointer;
+`;
+
+const DeleteButton = styled.button`
+  background-color: red;
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  font-family: "Exo 2", sans-serif;
+  font-weight: 700;
+  padding: 5px 15px;
+  cursor: pointer;
+`;
+
+const DeleteWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;

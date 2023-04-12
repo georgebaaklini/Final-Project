@@ -145,31 +145,13 @@ const deleteTeam = async (req, res) => {
   }
 };
 
-const addAllPlayers = async (req, res) => {
-  const { name } = req.params;
-  const client = new MongoClient(MONGO_URI, options);
-
-  try {
-    await client.connect();
-    const db = client.db("finalproject");
-    const playersCollection = db.collection("players");
-
-    const query = name
-      ? { name: { $regex: new RegExp(`^${name}$`, "i") } }
-      : {};
-    const players = await playersCollection.find(query).toArray();
-    res.status(200).json({ status: 200, data: players });
-  } catch (error) {
-    console.error(error);
-  } finally {
-    client.close();
-  }
-};
-
-const replacePlayer = async (req, res) => {
+const replacePlayerInTeam = async (req, res) => {
   const { id } = req.params;
-  const { newPlayer } = req.body;
+  const { playerIdToReplace, newPlayer } = req.body;
   const client = new MongoClient(MONGO_URI, options);
+
+  console.log("playerIdToReplace:", playerIdToReplace);
+  console.log("newPlayer:", newPlayer);
 
   try {
     await client.connect();
@@ -178,25 +160,32 @@ const replacePlayer = async (req, res) => {
 
     const team = await teamsCollection.findOne({ _id: new ObjectId(id) });
 
-    if (team) {
-      const updatedPlayers = team.players.map((player) => {
-        if (player.id === newPlayer.id) {
-          return newPlayer;
-        }
-        return player;
-      });
-
-      await teamsCollection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: { players: updatedPlayers } }
-      );
-
-      res.status(200).json({ message: "Player replaced successfully" });
-    } else {
+    if (!team) {
       res.status(404).json({ message: "Team not found" });
+      return;
     }
+
+    console.log("team.players:", team.players);
+
+    const updatedPlayers = team.players.map((player) => {
+      if (player.name === playerIdToReplace) {
+        return newPlayer;
+      } else {
+        return player;
+      }
+    });
+
+    console.log("updatedPlayers:", updatedPlayers);
+
+    await teamsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { players: updatedPlayers } }
+    );
+
+    res.status(200).json({ ...team, players: updatedPlayers });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: "Error replacing player in the team" });
   } finally {
     await client.close();
   }
@@ -209,6 +198,5 @@ module.exports = {
   saveTeam,
   getTeams,
   deleteTeam,
-  replacePlayer,
-  addAllPlayers,
+  replacePlayerInTeam,
 };

@@ -11,8 +11,7 @@ const {
   saveTeam,
   getTeams,
   deleteTeam,
-  replacePlayer,
-  addAllPlayers,
+  replacePlayerInTeam,
 } = require("./Handlers");
 
 express()
@@ -36,11 +35,9 @@ express()
 
   .get("/api/teams", getTeams)
 
-  .get("/api/players:name?", addAllPlayers)
-
   .delete("/api/teams/:id", deleteTeam)
 
-  .patch("/api/players/:id", replacePlayer)
+  .patch("/api/teams/:id", replacePlayerInTeam)
 
   // this is our catch all endpoint.
   .get("*", (req, res) => {

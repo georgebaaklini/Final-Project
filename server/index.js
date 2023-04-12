@@ -4,7 +4,16 @@
 const express = require("express");
 const morgan = require("morgan");
 
-const { getLeagues, getCountries } = require("./Handlers");
+const {
+  getCountries,
+  getLeaguesbyCountry,
+  getSquadByLeague,
+  saveTeam,
+  getTeams,
+  deleteTeam,
+  replacePlayer,
+  addAllPlayers,
+} = require("./Handlers");
 
 express()
   // Below are methods that are included in express(). We chain them for convenience.
@@ -17,9 +26,21 @@ express()
   // Any requests for static files will go into the public folder
   .use(express.static("public"))
 
-  .get("/api/leagues", getLeagues)
-
   .get("/api/countries", getCountries)
+
+  .get("/api/leagues-by-country", getLeaguesbyCountry)
+
+  .get("/api/squads/:league", getSquadByLeague)
+
+  .post("/api/save-team", saveTeam)
+
+  .get("/api/teams", getTeams)
+
+  .get("/api/players:name?", addAllPlayers)
+
+  .delete("/api/teams/:id", deleteTeam)
+
+  .patch("/api/players/:id", replacePlayer)
 
   // this is our catch all endpoint.
   .get("*", (req, res) => {
